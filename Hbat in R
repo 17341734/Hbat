@@ -1,0 +1,138 @@
+library(readxl)
+HBAT <- read_excel("C:/Eski Bigisayar/IE 605/Oguz data analytics/REgitim/HBAT.xlsx")
+View(HBAT)
+
+# Tanimlayici istatistik ve ug degerlerin tespit edilmesi 
+hist(HBAT$x18, col = "blue")
+hist(HBAT$x20, col = "red")
+attach(HBAT)
+detach(HBAT)
+?hist
+hist(x20,col = "blue",30)
+hist(x20,probability=TRUE)
+rug(jitter(x20)) 
+hist(x20, prob=TRUE, col = "blue", border = "red",20)
+lines(density(x20))
+hist(x20,breaks=3,col = "blue") 
+hist(x20, col = "red", 6)
+?boxplot
+boxplot(HBAT$x20, col = "red")
+summary(x20)
+IQR(x20)*1.5+7.6
+IQR(x20)*3+7.6
+6.3-IQR(x20)*1.5
+install.packages("psych")
+library(psych)
+describe(x20)
+boxplot(x20, col = "blue")
+boxplot(x20,main="Tavsiye Etme Arzusu",horizontal=TRUE, col = "blue")
+boxplot(x20,main="Tavsiye Etme Arzusu",col = "blue")
+boxplot(x20~x1,col=rainbow(7))
+
+# Normal Dagilim Testi
+install.packages("car")
+library(car)
+qqPlot(x20)
+HBATk<-HBAT[-c(38,22),]# Tek degiskenli Normallik Testi
+shapiro.test(x20)
+hist(x20, prob=TRUE, col = "blue", border = "red")
+lines(density(x20))
+shapiro.test(x6)
+hist(x6, prob=TRUE, col = "blue", border = "red")
+lines(density(x6))
+install.packages("nortest")
+library(nortest)
+?lillie.test
+lillie.test(x20)
+lillie.test(x6)
+
+boxplot(x19~x1*x4,col=rainbow(7))
+
+# Tek vrnek ile t test
+summary(x6)
+describe(x6)
+?t.test
+t.test(x6)
+t.test(x6, conf=0.95, alt= "two.sided", mu=0)
+t.test(x6,mu=8.1)
+qt(0.025,99)
+t.test(x6,mu=8.08)
+t.test(x8, alternative='less',mu=8)
+t.test(x8, alternative='greater',mu=8)
+
+# Parametrik olmayan yvntem (Tek vrneklemli t-test'in alternatifi)
+library(stats)
+?wilcox.test
+wilcox.test(x6, mu=8.08, data = HBAT)
+wilcox.test(x6, mu=8.1, data = HBAT)
+
+# Bagimsiz iki grup ile t test (Varyanslar ayni degil)
+x3<-factor(x3)
+x1<-factor(x1)
+boxplot(x19~x3,col=rainbow(7))
+t.test(x19~x3)
+t.test(x19~x3,conf=0.95, alt= "two.sided", var.equal=FALSE, paired=FALSE)
+
+
+x3 <- factor(x3,levels = c("1","0"))
+x3 <- factor(x3,levels = c("0","1"))
+
+# Etki Degeri
+install.packages("effsize")
+library(effsize)
+attach(HBAT)
+cohen.d(x19 ~ x3, data=HBAT)
+
+# Parametrik Olmayan Bagimsiz iki Grup Ortalamasi Arasindaki Fark
+wilcox.test(x19 ~ x3, data = HBAT)
+
+# Bagimli iki ortalamanin testi (paired t-test) vrnegi
+# kaynak: http://www.sthda.com/english/wiki/paired-samples-t-test-in-r
+
+# Weight of the mice before treatment
+before = c(200.1, 190.9, 192.7, 213, 241.4, 196.9, 172.2, 185.5, 205.2, 193.7)
+# Weight of the mice after treatment
+after = c(392.9, 393.2, 345.1, 393, 434, 427.9, 422, 383.9, 392.3, 352.2)
+# Create a data frame
+my_data = data.frame( 
+  group = rep(c("before", "after"), each = 10),
+  weight = c(before,  after)
+)
+
+print(my_data)
+boxplot(my_data$weight ~ my_data$group,col=rainbow(7))
+t.test(my_data$weight~my_data$group,paired=TRUE)
+t.test(my_data$weight ~ my_data$group, paired = TRUE,mu=215)
+
+# Parametrik olmayan durum
+wilcox.test(my_data$weight ~ my_data$group, paired = TRUE, mu=215)
+
+# Ikiden fazla ortalamanin test edilmesi
+# Tek kategorik degiskenli Anova
+attach(HBAT)
+x1<-factor(x1)
+boxplot(x19~x1,col=rainbow(7))
+?aov
+model<-aov(x19~x1)
+summary(model)
+qf(0.95,2,97)
+# T|m guruplarin ana k|tle varyanslari ayni ise Tukey
+TukeyHSD(model)
+
+# Parametrik olmayan 3 gruplu test
+?kruskal.test
+model3<-kruskal.test(x19~x1, data = HBAT)
+summary(model3)
+
+# Iki kategorik degisken ile Anova (Two way Anova)
+attach(HBAT)
+x1<-factor(x1)
+x4<-factor(x4)
+boxplot(x19~x4,col=rainbow(7))
+model<-aov(x19~x4)
+summary(model)
+t.test(x19~x4)
+boxplot(x19~x1*x4,col=rainbow(7))
+model<-aov(x19~x1*x4)
+summary(model)
+TukeyHSD(model)
